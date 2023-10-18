@@ -1,28 +1,56 @@
 const desplazamiento = document.getElementById("desplazamiento");
 const texto = document.getElementById("texto");
 const textoCifrado = document.getElementById("cifrado");
+const textoDescifrado = document.getElementById("descifrado");
+
+function obtenerValorDesplazamiento() {
+    const valor = desplazamiento.value.toLowerCase();
+    if (/^[a-z]$/.test(valor)) {
+        return valor.charCodeAt(0) - 97;
+    } else if (/^\d+$/.test(valor)) {
+        return parseInt(valor) % 10; // Usamos un rango de 0-9 para números
+    } else {
+        return 0;
+    }
+}
 
 function cifrado() {
     const textoIngresado = texto.value;
+    const valorDesplazamiento = obtenerValorDesplazamiento();
 
     textoCifrado.value = textoIngresado.split('').map(c => {
-        let mayus = (c === c.toUpperCase()) ? true : false;
-        let valorEntero = c.toLowerCase().charCodeAt(0);
-
-        if ((valorEntero >= 97 && valorEntero <= 122) || (c >= '0' && c <= '9')) {
-            const valorDesplazamiento = parseInt(desplazamiento.value);
-
-            if (valorEntero >= 97 && valorEntero <= 122) {
-                valorEntero = ((valorEntero - 97 + valorDesplazamiento) % 26) + 97;
-            } else if (c >= '0' && c <= '9') {
-                valorEntero = ((valorEntero - '0'.charCodeAt(0) + valorDesplazamiento) % 10) + '0'.charCodeAt(0);
-            }
+        let valorEntero = c.charCodeAt(0);
+        if (valorEntero >= 65 && valorEntero <= 90) {
+            valorEntero = (valorEntero - 65 + valorDesplazamiento) % 26 + 65;
+        } else if (valorEntero >= 97 && valorEntero <= 122) {
+            valorEntero = (valorEntero - 97 + valorDesplazamiento) % 26 + 97;
+        } else if (valorEntero >= 48 && valorEntero <= 57) {
+            valorEntero = (valorEntero - 48 + valorDesplazamiento) % 10 + 48;
         }
-
         let cifrado = String.fromCharCode(valorEntero);
-        return mayus ? cifrado.toUpperCase() : cifrado;
+        return cifrado;
     }).join('');
 }
 
-texto.addEventListener("input", cifrado);
+function descifrado() {
+    const textoIngresado = textoCifrado.value;
+    const valorDesplazamiento = obtenerValorDesplazamiento();
+
+    textoDescifrado.value = textoIngresado.split('').map(c => {
+        let valorEntero = c.charCodeAt(0);
+        if (valorEntero >= 65 && valorEntero <= 90) {
+            valorEntero = (valorEntero - 65 - valorDesplazamiento + 26) % 26 + 65;
+        } else if (valorEntero >= 97 && valorEntero <= 122) {
+            valorEntero = (valorEntero - 97 - valorDesplazamiento + 26) % 26 + 97;
+        } else if (valorEntero >= 48 && valorEntero <= 57) {
+            valorEntero = (valorEntero - 48 - valorDesplazamiento + 10) % 10 + 48;
+        }
+        let cifrado = String.fromCharCode(valorEntero);
+        return cifrado;
+    }).join('');
+}
+
+texto.addEventListener("keyup", cifrado);
+desplazamiento.addEventListener("input", cifrado);
 desplazamiento.addEventListener("change", cifrado);
+textoCifrado.addEventListener("keyup", descifrado);
